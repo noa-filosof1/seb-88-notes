@@ -22,6 +22,15 @@
   <% } else { %>
     <p>You don't own this listing, <%= listing.owner.username %> does!</p>
   <% } %>
-  
+  <h2>Favourites</h2>
+  <p>Favourited by <%= listing.favouritedByUsers.length %> people.</p>
+  <% if (userHasFavourited) { %>
+    <p>You have favourited this listing!</p>
+  <% } else { %>
+    <p>You have not favourited this listing</p>
+    <form action="/listings/<%= listing._id %>/favourited-by/<%= user._id %>" method="POST">
+      <button type="submit">Favourite!</button>
+    </form>
+  <% } %>
 </body>
 </html>

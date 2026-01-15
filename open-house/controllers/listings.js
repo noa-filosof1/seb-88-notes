@@ -38,8 +38,14 @@ router.get('/:listingId', async (req, res) => {
     const populatedListing = await Listing.findById(
       req.params.listingId
     ).populate('owner');
+    const userHasFavourited = populatedListing.favouritedByUsers.some((user) => {
+      // convert the user from objectID to a string value, then do a strict equality
+      // user.equals(req.session.user._id)
+      return user == req.session.user._id;
+    });
     res.render('listings/show.ejs', {
       listing: populatedListing,
+      userHasFavourited: userHasFavourited,
     });
   } catch (error) {
     console.log(error);
@@ -95,5 +101,24 @@ router.put('/:listingId', async (req, res) => {
   }
 })
 
+// add a favourite to a listing 
+router.post('/:listingId/favourited-by/:userId', async (req, res) => {
+  try {
+    // findByIdAndUpdate - this will be used to find the listing and update the favouritedByUsers array
+    // $push - this is mongo's push operator
+    await Listing.findByIdAndUpdate(req.params.listingId, {
+      $push: {favouritedByUsers: req.params.userId},
+    })
+    res.redirect(`/listings/${req.params.listingId}`);
+  } catch (error) {
+    console.log(error);
+    res.redirect('/');
+  }
+})
+
 
 module.exports = router;
+
+
+// favourited by route 
+// POST /listings/:listingId/favourited-by/:userId
